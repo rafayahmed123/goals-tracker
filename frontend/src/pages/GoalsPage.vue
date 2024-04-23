@@ -61,12 +61,16 @@ export default {
       <h2 class="subtitle">Your Goals:</h2>
       <template v-if="goals.length > 0">
         <div v-for="goal in goals" :key="goal" class="goal-container">
-          <h4 class="goal">
-            {{ goal.Goal }}
-          </h4>
-          <button class="styled-button" @click="getSuggestions(goal.Goal)">
-            Get Breakdown
-          </button>
+          <div class="basic-container">
+            <h4 class="goal">
+              {{ goal.Goal }}
+            </h4>
+          </div>
+          <div class="basic-container">
+            <button class="styled-button" @click="getSuggestions(goal.Goal)">
+              Get Breakdown
+            </button>
+          </div>
         </div>
       </template>
     </div>
@@ -95,12 +99,16 @@ export default {
   background-color: white;
 }
 
+.basic-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .styled-button {
   padding: 10px 30px;
   border: none;
   border-radius: 5px;
-  width: 50%;
-  height: 60%;
   background-color: #007bff;
   color: #fff;
   font-size: 18px;
