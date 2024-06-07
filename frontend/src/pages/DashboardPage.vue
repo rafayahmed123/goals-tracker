@@ -1,6 +1,6 @@
 <script>
 import SidebarComponent from "@/components/SidebarComponent.vue";
-import { getDocs } from "firebase/firestore";
+import { getDocs, where, query } from "firebase/firestore";
 import { userRef } from "@/main";
 
 export default {
@@ -11,7 +11,8 @@ export default {
   data() {
     return {
       goals: [],
-      userName: "",
+      user: {},
+      userName: this.$route.query.user,
     };
   },
   mounted() {
@@ -20,13 +21,18 @@ export default {
   methods: {
     async fetchUser() {
       try {
-        const userSnapshot = await getDocs(userRef);
+        const q = query(userRef, where("name", "==", this.userName));
+        const querySnapshot = await getDocs(q);
 
-        userSnapshot.forEach((doc) => {
-          this.userName = doc.data().name;
-        });
+        if (!querySnapshot.empty) {
+          querySnapshot.forEach((docs) => {
+            this.user = docs.data();
+          });
+        } else {
+          console.log("No user found with this name.");
+        }
       } catch (error) {
-        console.error("Error fetching goals:", error);
+        console.error("Error fetching user: ", error);
       }
     },
   },
@@ -44,15 +50,12 @@ export default {
 
 <template>
   <div class="container">
-    <SidebarComponent :userInitials="userName[0]" />
+    <SidebarComponent :userName="this.user.name" :id="this.user.id" />
     <div class="content">
       <h2 class="subtitle">
         Welcome {{ userName }}<br />
         Select the Options On the Navigator To Explore
       </h2>
-      <!-- {{ this.goals.length > 0 ? this.goals.map(goal => `
-    <h4>${goal}</h4>
-    `) : null }} -->
       <template v-if="goals.length > 0">
         <h4 v-for="goal in goals" :key="goal">{{ goal.Goal }}</h4>
       </template>

@@ -3,6 +3,7 @@ import axios from "axios";
 
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
+import { v4 as uuidv4 } from "uuid";
 
 export default {
   name: "SetupPage",
@@ -11,6 +12,8 @@ export default {
       result: "",
       goals: [],
       dbRef: {},
+      user: this.$route.query.name,
+      id: this.$route.query.id,
     };
   },
   mounted() {
@@ -46,7 +49,8 @@ export default {
           this.goals = [...this.goals, ...sentences];
           sentences.forEach(async (sentence) => {
             await addDoc(collection(this.dbRef, "Goals"), {
-              Goal: sentence,
+              id: uuidv4(),
+              goal: sentence,
             });
           });
         })
@@ -58,7 +62,8 @@ export default {
       this.goals.push(this.textInput);
       try {
         await addDoc(collection(this.dbRef, "Goals"), {
-          Goal: this.textInput,
+          id: uuidv4(),
+          goal: this.textInput,
         });
         this.textInput = "";
         console.log("New goal added successfully!");
@@ -67,7 +72,7 @@ export default {
       }
     },
     navigateToDashboard() {
-      this.$router.push({ path: "/dashboard", replace: true });
+      this.$router.push({ path: "/dashboard", query: { user: this.user } });
     },
   },
 };

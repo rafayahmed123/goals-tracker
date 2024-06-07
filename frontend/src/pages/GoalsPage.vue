@@ -1,7 +1,7 @@
 <script>
 import SidebarComponent from "@/components/SidebarComponent.vue";
-import { getDocs } from "firebase/firestore";
-import { goalsRef, userRef } from "@/main";
+import { getDocs, where, query } from "firebase/firestore";
+import { goalsRef } from "@/main";
 import axios from "axios";
 
 export default {
@@ -12,7 +12,8 @@ export default {
   data() {
     return {
       goals: [],
-      userName: "",
+      userName: this.$route.query.name,
+      id: this.$route.query.id,
     };
   },
   mounted() {
@@ -21,23 +22,21 @@ export default {
   methods: {
     async fetchGoals() {
       try {
-        console.log("adfasd");
-        const userSnapshot = await getDocs(userRef);
+        const q = query(goalsRef, where("userId", "==", this.id));
+        const querySnapshot = await getDocs(q);
 
-        userSnapshot.forEach((doc) => {
-          this.userName = doc.data().name;
-        });
+        if (!querySnapshot.empty) {
+          const goals = [];
+          querySnapshot.forEach((doc) => {
+            goals.push({ id: doc.id, ...doc.data() });
+          });
 
-        const goalsSnapshot = await getDocs(goalsRef);
-
-        const goals = [];
-        goalsSnapshot.forEach((doc) => {
-          goals.push({ id: doc.id, ...doc.data() });
-        });
-
-        this.goals = goals;
+          this.goals = goals;
+        } else {
+          console.log("No user found with this name.");
+        }
       } catch (error) {
-        console.error("Error fetching goals:", error);
+        console.error("Error fetching user: ", error);
       }
     },
     async getSuggestions(goal) {
@@ -56,14 +55,14 @@ export default {
 
 <template>
   <div class="container">
-    <SidebarComponent :userInitials="userName[0]" />
+    <SidebarComponent :userName="this.userName" :id="this.id" />
     <div class="content">
       <h2 class="subtitle">Your Goals:</h2>
       <template v-if="goals.length > 0">
         <div v-for="goal in goals" :key="goal" class="goal-container">
           <div class="basic-container">
             <h4 class="goal">
-              {{ goal.Goal }}
+              {{ goal.goal }}
             </h4>
           </div>
           <div class="basic-container">

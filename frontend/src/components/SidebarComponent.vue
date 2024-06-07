@@ -2,14 +2,24 @@
 export default {
   name: "SidebarComponent",
   props: {
-    userInitials: String,
+    userName: String,
+    id: String,
   },
   methods: {
     navigateToDashboard() {
-      this.$router.push({ path: "/dashboard", replace: true });
+      this.$router.push({
+        path: "/dashboard",
+        query: { user: this.userName },
+      });
     },
     navigateToGoals() {
-      this.$router.push({ path: "/goals", replace: true });
+      this.$router.push({
+        path: "/goals",
+        query: { id: this.id, name: this.userName },
+      });
+    },
+    mounted() {
+      // console.log("initials ", this.user);
     },
   },
 };
@@ -21,7 +31,7 @@ export default {
       <div class="element1">
         <div class="inner-container">
           <span class="circle" @click="navigateToDashboard">{{
-            userInitials
+            userName && userName.charAt(0)
           }}</span>
         </div>
 
